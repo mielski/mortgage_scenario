@@ -8,8 +8,9 @@ import numpy as np
 
 def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
     """
-    The heart of this module. This generator yields payment information for an annuity loan.
-    It yields payment information for each period of the loan + 1 extra the final payment is done
+    The heart of this module. This generator yields payment information for an annuity.
+    It yields payment information for each period of the loan
+    plus 1 extra on after all payments are done
 
     :param float amount_boy: the amount of the loan
     :param float rate: the interest rate computed each period
@@ -24,7 +25,10 @@ def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
     - loan amount before and after the payment
     - total payment done (= payment + interest)
     """
-    # TODO: pmt is repeciated, use replacement function
+    if npers < 1:
+        raise ValueError('npers should be a positive number, "{}" provided'.format(npers))
+    # TODO: pmt is depreciated, use replacement function
+    # noinspection PyTypeChecker
     payment = -np.pmt(rate, npers, amount_boy, -fv, when='end') + fixed
     for i in range(npers):
 
@@ -38,12 +42,13 @@ def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
         amount_boy = amount_eoy
 
     interest = amount_boy*rate + fixed
+    # noinspection PyUnboundLocalVariable
     yield dict(interest=interest, repayment=repayment,
                amount_eoy=amount_eoy, payment=payment,
                amount_boy=amount_boy)
 
 
-class PaymentData():
+class PaymentData:
     """
     dataclass with yearly payment data of a loan
 
@@ -52,8 +57,7 @@ class PaymentData():
     _payment_attrs = {'interest', 'repayment', 'payment',
                       'amount_boy', 'amount_eoy'}
 
-
-    def __init__(self, data=None):
+    def __init__(self):
 
         self.interest = 0.
         self.repayment = 0.
@@ -61,11 +65,9 @@ class PaymentData():
         self.amount_boy = 0.
         self.amount_eoy = 0.
 
-
     def as_dict(self):
 
         return {attr: getattr(self, attr) for attr in self._payment_attrs}
-
 
     def __add__(self, other):
 
@@ -101,7 +103,7 @@ class PaymentData():
 
 class LoanPart:
     """
-    Representation of a Loanpart.
+    Representation of a loan part.
 
     Class that is build on top of generate_payments, but stores the progression
     of the payments and is able to return replacement loans
@@ -179,7 +181,6 @@ class MortgageLoanRunner:
         self.loanpart_active = []
         self.period = 0
 
-
     def add_loanpart(self, loanpart: LoanPart, name=None):
 
         if not isinstance(loanpart, LoanPart):
@@ -188,8 +189,6 @@ class MortgageLoanRunner:
         self.loanparts.append(loanpart)
         self.names.append(name)
         self.loanpart_active.append(True)
-
-
 
     def step(self):
 
@@ -219,7 +218,6 @@ class MortgageLoanRunner:
                 self.step()
             except StopIteration:
                 break
-
 
     @property
     def current_amount(self):
@@ -259,7 +257,7 @@ class MortgageLoanRunner:
         """
 
         if name and index:
-            raise ValueError('replace_loanpart required either name or index' \
+            raise ValueError('replace_loanpart required either name or index' +
                              ' but both are provided ')
         if index is None and name is None:
             raise ValueError('replace_loanpart required either name or index' +
@@ -298,7 +296,6 @@ class MortgageScenarioRunner:
         self._mortgage_loans = deepcopy(mortgage.loanparts)
         if not len(mortgage.data) == 0:
             raise ValueError('mortgage input should not have started running')
-
 
         self._scenarios = {}
 
