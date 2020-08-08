@@ -4,8 +4,6 @@
 
 import pytest
 
-from mortgage_scenarios import core
-
 
 @pytest.fixture
 def response():
