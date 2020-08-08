@@ -5,23 +5,8 @@ from bisect import bisect
 import pandas as pd
 import numpy as np
 
-PERIODS = 12 * 30
 
-
-class Settings:
-    tax_percentage = 0.3735
-    fixed_rate = 1.7
-
-    rates = {'Annuity': {'67': 1.75, '90': 1.95},
-             'Interest-only': {'67': 1.95, '90': 2.15}
-             }
-
-class HouseSettings:
-    woz_value = 550000.
-    taxation_price = 631000.
-
-
-def generate_payments(amount_boy, rate, npers, fv=0, fixed=0):
+def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
     """
     The heart of this module. This generator returns payment information
     over the lifetime of loan
@@ -107,12 +92,12 @@ class LoanPart:
     and contains loan remaining period information
     """
 
-    def __init__(self, amount, year_rate, periods, future=0, fixed=0):
+    def __init__(self, amount, year_rate, periods, future=0., fixed=0.):
         self.start_amount = amount
         self.n_periods = periods
         self.rate = get_monthly_rate(year_rate)
         self.future = future
-        self.fixed = 0
+        self.fixed = fixed
         self.reset()
 
 
@@ -275,13 +260,6 @@ class MortgageLoanRunner:
         self.loanparts[index] = new
 
 
-
-def calc_eigenwoning_forfait_tax():
-    # monthy
-
-    return 0.006 * Settings.woz
-
-
 class MortgageScenarioRunner:
     """
     returns the payments over time of a mortgage, using particular scenario
@@ -342,6 +320,8 @@ def get_ltv_tranch(amount, houseprice):
 
 
 if __name__ == "__main__":
+
+    PERIODS = 30
 
     pd.options.display.precision = 2
     pd.options.display.float_format = '{:,.2f}'.format
