@@ -104,7 +104,7 @@ class LoanPart:
     Representation of a Loanpart.
 
     Class that is build on top of generate_payments, but stores the progression
-    of the payments and historic payments made
+    of the payments and is able to return replacement loans
     """
 
     def __init__(self, amount, year_rate, periods, future=0., fixed=0.):
@@ -113,14 +113,15 @@ class LoanPart:
         self.rate = get_monthly_rate(year_rate)
         self.future = future
         self.fixed = fixed
-
-        # declare properties, defined in self.reset()
         self._calculator = None
-        self.current_period = 0
-        self.current_amount = 0.
 
         self.reset()
 
+    # noinspection PyAttributeOutsideInit
+    def reset(self):
+        self.current_period = 0
+        self.current_amount = self.start_amount
+        self.initialize_calculator()
 
     @property
     def remaining_periods(self):
@@ -140,11 +141,6 @@ class LoanPart:
                                              self.fixed)
         return self._calculator
 
-    def reset(self):
-        self.current_period = 0
-        self.current_amount = self.start_amount
-        self.initialize_calculator()
-
     def __iter__(self):
         return self
 
@@ -161,13 +157,14 @@ class LoanPart:
 
     def new_loanpart_with_rate(self, rate):
         """
-        create a new LoanPart with the same status as the current loanpart
+        returns a new LoanPart with the same status as the current loanpart
         (using the current amount and remaining periods), but with an
         updated interest rate
         """
 
         return LoanPart(self.current_amount, rate,
                         self.remaining_periods, self.future, self.fixed)
+
 
 class MortgageLoanRunner:
     """
