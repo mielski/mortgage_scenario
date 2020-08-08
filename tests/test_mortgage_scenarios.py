@@ -4,7 +4,7 @@
 
 import pytest
 
-from mortgage_scenarios import mortgage_scenarios
+from mortgage_scenarios import core
 
 
 @pytest.fixture
