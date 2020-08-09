@@ -1,6 +1,17 @@
+from bisect import bisect
+
 import pandas as pd
 
 from mortgage_scenarios import MortgageLoanRunner, LoanPart
+
+houseprice = 62000
+
+def get_ltv_tranch(amount, houseprice):
+    ltv_boundaries = (0.675, 0.9, 1.0)
+    ltv_tranch_names = ('<67.5%', '67.5% - 90%', '90% - 100%', '>100%')
+    ltv = amount / houseprice()
+    ltv_index = bisect(ltv_boundaries, ltv)
+    return ltv_index, ltv_tranch_names[ltv_index]
 
 PERIODS = 30
 

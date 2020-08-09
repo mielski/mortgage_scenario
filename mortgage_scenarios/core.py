@@ -1,9 +1,10 @@
 """Main module"""
 from copy import copy, deepcopy
-from bisect import bisect
 
 import pandas as pd
 import numpy as np
+
+from utils import get_monthly_rate
 
 
 def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
@@ -300,25 +301,3 @@ class MortgageScenarioRunner:
         self._scenarios = {}
 
 
-def get_monthly_rate(rate) -> float:
-    """
-    computes the monthy interest rate based on the yearly interest rate
-
-    :param float rate: the yearly interest rate
-    :return: the monthly interest rate
-
-    This computation uses the 12th root on the growth factor
-    """
-
-    growth_year = rate + 1
-    growth_month = np.power(growth_year, 1./12)
-    rate_month = growth_month - 1
-    return rate_month
-
-
-def get_ltv_tranch(amount, houseprice):
-    ltv_boundaries = (0.675, 0.9, 1.0)
-    ltv_tranch_names = ('<67.5%', '67.5% - 90%', '90% - 100%', '>100%')
-    ltv = amount / houseprice()
-    ltv_index = bisect(ltv_boundaries, ltv)
-    return ltv_index, ltv_tranch_names[ltv_index]
