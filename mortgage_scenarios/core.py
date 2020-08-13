@@ -55,16 +55,23 @@ class PaymentData:
 
     has functionality to add data from other loans
     """
-    _payment_attrs = {'interest', 'repayment', 'payment',
-                      'amount_boy', 'amount_eoy'}
+    _payment_attrs = {'interest', 'repayment', 'amount_boy'}
 
     def __init__(self):
 
         self.interest = 0.
         self.repayment = 0.
-        self.payment = 0.
         self.amount_boy = 0.
-        self.amount_eoy = 0.
+
+    @property
+    def payment(self):
+        """payment is the sum of interest and repayment"""
+        return self.interest + self.repayment
+
+    @property
+    def amount_end(self):
+        """amount after repayment"""
+        return self.amount_boy - self.repayment
 
     def as_dict(self):
 
