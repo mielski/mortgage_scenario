@@ -2,7 +2,7 @@ from bisect import bisect
 
 import pandas as pd
 
-from mortgage_scenarios import MortgageLoanRunner, LoanPart
+from mortgage_scenarios import MortgageLoanRunner, LoanPartIterator
 
 houseprice = 62000
 
@@ -18,9 +18,9 @@ PERIODS = 30
 pd.options.display.precision = 2
 pd.options.display.float_format = '{:,.2f}'.format
 
-loan1 = LoanPart(92500, 0.0215, PERIODS, future=92500, fixed=1.7)
-loan2 = LoanPart(150000, 0.0195, PERIODS, fixed=1.7)
-loan3 = LoanPart(144000, 0.0195, PERIODS, fixed=1.7)
+loan1 = LoanPartIterator(92500, 0.0215, PERIODS, future=92500, fixed=1.7)
+loan2 = LoanPartIterator(150000, 0.0195, PERIODS, fixed=1.7)
+loan3 = LoanPartIterator(144000, 0.0195, PERIODS, fixed=1.7)
 loans = [loan1, loan2, loan3]
 
 # ----

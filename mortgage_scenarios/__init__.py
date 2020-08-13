@@ -1,9 +1,6 @@
-
 """Top-level package for mortgage scenarios."""
 
-__author__ = """Emiel van IJsseldijk"""
-__email__ = 'happiemiel@gmail.com'
 __version__ = '0.1.0'
 
-from .core import MortgageLoanRunner, LoanPart  # noqa: F401
-from .utils import get_monthly_rate # noqa: F401
+from .core import MortgageLoanRunner, LoanPartIterator  # noqa: F401
+from .utils import get_monthly_rate  # noqa: F401

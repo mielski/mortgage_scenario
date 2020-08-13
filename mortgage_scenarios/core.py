@@ -102,12 +102,13 @@ class PaymentData:
         return self
 
 
-class LoanPart:
+class LoanPartIterator:
     """
-    Representation of a loan part.
+    Generates payments of a loan and stores remaining amount and period internally
 
-    Class that is build on top of generate_payments, but stores the progression
-    of the payments and is able to return replacement loans
+    It is an enhanced version of the generate_payments generator. iteration returns the values from the generator,
+    but also the period number and remaining periods
+    Also, properties such as current amount are stored in the instance
     """
 
     def __init__(self, amount, year_rate, periods, future=0., fixed=0.):
@@ -160,13 +161,13 @@ class LoanPart:
 
     def new_loanpart_with_rate(self, rate):
         """
-        returns a new LoanPart with the same status as the current loanpart
+        returns a new LoanPartIterator with the same status as the current loanpart
         (using the current amount and remaining periods), but with an
         updated interest rate
         """
 
-        return LoanPart(self.current_amount, rate,
-                        self.remaining_periods, self.future, self.fixed)
+        return LoanPartIterator(self.current_amount, rate,
+                                self.remaining_periods, self.future, self.fixed)
 
 
 class MortgageLoanRunner:
@@ -182,10 +183,10 @@ class MortgageLoanRunner:
         self.loanpart_active = []
         self.period = 0
 
-    def add_loanpart(self, loanpart: LoanPart, name=None):
+    def add_loanpart(self, loanpart: LoanPartIterator, name=None):
 
-        if not isinstance(loanpart, LoanPart):
-            raise TypeError("LoanPart instance expected for argument loanpart")
+        if not isinstance(loanpart, LoanPartIterator):
+            raise TypeError("LoanPartIterator instance expected for argument loanpart")
 
         self.loanparts.append(loanpart)
         self.names.append(name)
@@ -268,7 +269,7 @@ class MortgageLoanRunner:
 
         self.loanparts[index] = loanpart
 
-    def replace_loanpart(self, old: LoanPart, new: LoanPart) -> None:
+    def replace_loanpart(self, old: LoanPartIterator, new: LoanPartIterator) -> None:
         """
         replaces one of the loanparts in the internal list
 
@@ -299,5 +300,3 @@ class MortgageScenarioRunner:
             raise ValueError('mortgage input should not have started running')
 
         self._scenarios = {}
-
-
