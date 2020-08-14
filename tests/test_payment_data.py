@@ -6,7 +6,6 @@ import pytest
 
 from core import PaymentData
 
-
 AM = 'amount'
 IP = 'interest'
 RP = 'repayment'
@@ -59,10 +58,12 @@ def test_add_two_payments(payment_fixture):
 def test_payment_property(payment_fixture):
     """tests whether payment is the sum of interest and repayment"""
 
-    assert payment_fixture.payment == payment_fixture.interest + payment_fixture.repayment
+    assert payment_fixture.payment == \
+        payment_fixture.interest + payment_fixture.repayment
 
 
 def test_end_amount(payment_fixture):
     """tests whether amount end equals start minus repayment"""
 
-    assert payment_fixture.amount_end == payment_fixture.amount_boy - payment_fixture.repayment
+    assert payment_fixture.amount_end == payment_fixture.amount_boy - \
+        payment_fixture.repayment

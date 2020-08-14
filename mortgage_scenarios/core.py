@@ -113,7 +113,8 @@ class LoanPartIterator:
     """
     Generates payments of a loan and stores remaining amount and period internally
 
-    It is an enhanced version of the generate_payments generator. iteration returns the values from the generator,
+    It is an enhanced version of the generate_payments generator.
+    Iteration returns the values from the generator,
     but also the period number and remaining periods
     Also, properties such as current amount are stored in the instance
     """
