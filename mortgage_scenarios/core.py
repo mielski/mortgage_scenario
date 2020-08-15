@@ -1,5 +1,6 @@
 """Main module"""
 from copy import copy, deepcopy
+from dataclasses import dataclass
 
 import pandas as pd
 import numpy as np
@@ -49,19 +50,19 @@ def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
                amount_boy=amount_boy)
 
 
+@dataclass
 class PaymentData:
     """
     dataclass with yearly payment data of a loan
 
     has functionality to add data from other loans
     """
-    _payment_attrs = {'interest', 'repayment', 'amount_boy'}
 
-    def __init__(self):
+    interest: float
+    repayment: float
+    amount_boy: float
 
-        self.interest = 0.
-        self.repayment = 0.
-        self.amount_boy = 0.
+    _payment_attrs = {'interest', 'repayment', 'amount_boy', 'payment', 'amount_end'}
 
     @property
     def payment(self):
@@ -80,7 +81,8 @@ class PaymentData:
     def __add__(self, other):
 
         if isinstance(other, int):
-            return self
+            if other == 0:
+                return self
 
         out = copy(self)
         out += other
@@ -92,11 +94,11 @@ class PaymentData:
     def __iadd__(self, other):
 
         if isinstance(other, PaymentData):
-            for attr in self._payment_attrs:
+            for attr in self.__dict__:
                 value = getattr(self, attr) + getattr(other, attr)
                 setattr(self, attr, value)
         elif isinstance(other, dict):
-            for attr in self._payment_attrs:
+            for attr in self.__dict__:
                 value = getattr(self, attr) + other[attr]
                 setattr(self, attr, value)
         elif isinstance(other, int):
