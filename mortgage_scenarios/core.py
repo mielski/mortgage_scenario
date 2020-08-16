@@ -206,7 +206,7 @@ class MortgageLoanRunner:
 
         any_loan_active = 0
 
-        total_payment = PaymentData()
+        total_payment = PaymentData(amount_boy=0, interest=0, repayment=0)
         for i_loan, loanpart in enumerate(self.loanparts):
             if loanpart.remaining_periods <= 0:
                 continue
