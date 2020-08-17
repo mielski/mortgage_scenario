@@ -1,5 +1,6 @@
 """Main module"""
 from copy import copy, deepcopy
+from dataclasses import dataclass
 
 import pandas as pd
 import numpy as np
@@ -49,22 +50,29 @@ def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
                amount_boy=amount_boy)
 
 
+@dataclass
 class PaymentData:
     """
     dataclass with yearly payment data of a loan
 
     has functionality to add data from other loans
     """
-    _payment_attrs = {'interest', 'repayment', 'payment',
-                      'amount_boy', 'amount_eoy'}
 
-    def __init__(self):
+    interest: float
+    repayment: float
+    amount_boy: float
 
-        self.interest = 0.
-        self.repayment = 0.
-        self.payment = 0.
-        self.amount_boy = 0.
-        self.amount_eoy = 0.
+    _payment_attrs = {'interest', 'repayment', 'amount_boy', 'payment', 'amount_end'}
+
+    @property
+    def payment(self):
+        """payment is the sum of interest and repayment"""
+        return self.interest + self.repayment
+
+    @property
+    def amount_end(self):
+        """amount after repayment"""
+        return self.amount_boy - self.repayment
 
     def as_dict(self):
 
@@ -73,7 +81,8 @@ class PaymentData:
     def __add__(self, other):
 
         if isinstance(other, int):
-            return self
+            if other == 0:
+                return self
 
         out = copy(self)
         out += other
@@ -85,11 +94,11 @@ class PaymentData:
     def __iadd__(self, other):
 
         if isinstance(other, PaymentData):
-            for attr in self._payment_attrs:
+            for attr in self.__dict__:
                 value = getattr(self, attr) + getattr(other, attr)
                 setattr(self, attr, value)
         elif isinstance(other, dict):
-            for attr in self._payment_attrs:
+            for attr in self.__dict__:
                 value = getattr(self, attr) + other[attr]
                 setattr(self, attr, value)
         elif isinstance(other, int):
@@ -106,7 +115,8 @@ class LoanPartIterator:
     """
     Generates payments of a loan and stores remaining amount and period internally
 
-    It is an enhanced version of the generate_payments generator. iteration returns the values from the generator,
+    It is an enhanced version of the generate_payments generator.
+    Iteration returns the values from the generator,
     but also the period number and remaining periods
     Also, properties such as current amount are stored in the instance
     """
@@ -196,7 +206,7 @@ class MortgageLoanRunner:
 
         any_loan_active = 0
 
-        total_payment = PaymentData()
+        total_payment = PaymentData(amount_boy=0, interest=0, repayment=0)
         for i_loan, loanpart in enumerate(self.loanparts):
             if loanpart.remaining_periods <= 0:
                 continue
