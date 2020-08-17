@@ -1,9 +1,12 @@
 """
-tests for the generate_payments generator
+tests for the generate_payments generator and loanpart iterator
 """
+from unittest.mock import MagicMock
+
 import pytest
 
-from mortgage_scenarios.core import generate_payments
+from core import PaymentData
+from mortgage_scenarios.core import generate_payments, LoanPartIterator
 
 
 def input_dict():
@@ -33,4 +36,50 @@ def test_generate_interest_only(payment_parameters):
     result = next(gen)
 
     # assert
-    assert result['amount_boy'] == result['amount_eoy']
+    assert result['amount_boy'] == result['amount_end']
+
+
+@pytest.fixture(scope="function")
+def lpi():
+    """
+    LoanPartIterator object with a MagicMock for the generator
+    """
+    lpi = LoanPartIterator(amount=1000., year_rate=0.01, periods=2)
+    lpi._calculator = MagicMock(spec=generate_payments(0, 0, 1))
+    lpi._calculator.__next__.return_value = PaymentData(0, 0, 0)
+    return lpi
+
+
+def test_lpi_next_gives_paymentdata(lpi):
+    """
+    given a LoanPartIterator, checks if the next function works as expected
+    """
+    # act
+    result = next(lpi)
+
+    # assert
+    assert isinstance(result, PaymentData)
+
+
+def test_lpi_next_periods_assigned_to_data(lpi):
+    """
+    given a LoanPartIterator, checks if correct periods are assigned to the data
+    """
+    # act
+    result = next(lpi)
+
+    # assert
+    assert result.current_period == 0
+    assert result.remaining_period == 2
+
+
+def test_lpi_next_update_internal_periods(lpi):
+    """
+    given a LoanPartIterator, checks if the next function updates the internal properties
+    """
+    # act
+    result = next(lpi)
+
+    # assert
+    assert lpi.remaining_periods == 1
+    assert lpi.current_amount == result.amount_end

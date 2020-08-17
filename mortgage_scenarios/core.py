@@ -36,17 +36,17 @@ def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
 
         interest = amount_boy*rate + fixed
         repayment = payment - interest
-        amount_eoy = amount_boy - repayment
+        amount_end = amount_boy - repayment
         result = dict(interest=interest, repayment=repayment,
-                      amount_eoy=amount_eoy, payment=payment,
+                      amount_end=amount_end, payment=payment,
                       amount_boy=amount_boy)
         yield result
-        amount_boy = amount_eoy
+        amount_boy = amount_end
 
     interest = amount_boy*rate + fixed
     # noinspection PyUnboundLocalVariable
     yield dict(interest=interest, repayment=repayment,
-               amount_eoy=amount_eoy, payment=payment,
+               amount_end=amount_end, payment=payment,
                amount_boy=amount_boy)
 
 
@@ -61,6 +61,8 @@ class PaymentData:
     interest: float
     repayment: float
     amount_boy: float
+    current_period: int = None
+    remaining_period: int = None
 
     _payment_attrs = {'interest', 'repayment', 'amount_boy', 'payment', 'amount_end'}
 
@@ -160,11 +162,11 @@ class LoanPartIterator:
 
     def __next__(self):
 
-        result = next(self._calculator)
-        result['period'] = self.current_period
-        result['remaining'] = self.remaining_periods
+        result: PaymentData = next(self._calculator)
+        result.current_period = self.current_period
+        result.remaining_period = self.remaining_periods
 
-        self.current_amount = result['amount_eoy']
+        self.current_amount = result.amount_end
         self.current_period += 1
 
         return result
@@ -252,7 +254,7 @@ class MortgageLoanRunner:
     def to_dataframe(self):
         df = pd.DataFrame(self.data).set_index('period')
 
-        df = df[['amount_boy', 'payment', 'interest', 'repayment', 'amount_eoy']]
+        df = df[['amount_boy', 'payment', 'interest', 'repayment', 'amount_end']]
         return df
 
     def replace_loanpart_by_index(self, loanpart, index=None, name=None):
