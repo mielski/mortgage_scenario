@@ -11,17 +11,17 @@ IP = 'interest'
 RP = 'repayment'
 
 payment_fixture_data = {
-    'reg1': {
+    'item1': {
         AM: 1000,
         IP: 10,
         RP: 20,
     },
-    'reg2': {
+    'item2': {
         AM: 1000,
         IP: 50,
         RP: 50,
     },
-    'reg3': {
+    'item3': {
         AM: 0.,
         IP: -5.,
         RP: -10.,
@@ -37,6 +37,7 @@ def payment_fixture(request):
                                interest=request.param[IP],
                                repayment=request.param[RP])
     return payment_data
+
 
 def test_add_two_payments(payment_fixture):
     """Tests whether all parameters of two payments are added correctly"""
@@ -56,14 +57,60 @@ def test_payment_property(payment_fixture):
     """tests whether payment is the sum of interest and repayment"""
 
     assert payment_fixture.payment == \
-        payment_fixture.interest + payment_fixture.repayment
+           payment_fixture.interest + payment_fixture.repayment
 
 
 def test_end_amount(payment_fixture):
     """tests whether amount end equals start minus repayment"""
 
     assert payment_fixture.amount_end == payment_fixture.amount_boy - \
-        payment_fixture.repayment
+           payment_fixture.repayment
+
+
+def test__check_dict_keys_+regular(payment_fixture):
+    """tests whether _check_dict_keys returns positive for
+    given dictionary with variation in keys"""
+
+    dictionary = payment_fixture_data['item1']
+    # act
+    assert payment_fixture._check_dict_keys(dictionary) is True
+
+
+def test__check_dict_keys__regular_plus_property_items(payment_fixture):
+    """
+    dictionaries that contain also keys amount_end or payment
+    should also pass
+    """
+
+    # arrange
+    dictionary = payment_fixture_data['item1'].copy()
+    dictionary.update(payment=None, amount_end=None)
+
+    # act
+    assert payment_fixture._check_dict_keys(dictionary) is True
+
+
+def test__check_dict_keys_other_keys_rejected(payment_fixture):
+    """
+    Checks that a dictionary that contains other keys is rejected
+    """
+    # arrange
+    dictionary = payment_fixture_data['item1'].copy()
+    dictionary.update(a=None)  # key a is not accepted
+
+    # act
+    assert payment_fixture._check_dict_keys(dictionary) is False
+
+
+def test__check_dict_keys_missing_keys_rejected(payment_fixture):
+    """any input keys missing is rejected"""
+
+    # arrange
+    dictionary = payment_fixture_data['item1'].copy()
+    del dictionary['amount_boy']  # remove one if the entries
+
+    # act
+    assert payment_fixture._check_dict_keys(dictionary) is False
 
 
 def test_sum():
@@ -72,12 +119,13 @@ def test_sum():
     """
 
     # arrange
-    data1 = PaymentData(**payment_fixture_data['reg1'])
-    data2 = PaymentData(**payment_fixture_data['reg2'])
-    data3 = PaymentData(**payment_fixture_data['reg3'])
+    data1 = PaymentData(**payment_fixture_data['item1'])
+    data2 = PaymentData(**payment_fixture_data['item2'])
+    data3 = PaymentData(**payment_fixture_data['item3'])
 
     # count amounts based in input data
-    total_amount_expected = sum(payment_fixture_data[name]['amount_boy'] for name in ['reg1', 'reg2', 'reg3'])
+    total_amount_expected = sum(payment_fixture_data[name]['amount_boy']
+                                for name in ['item1', 'item2', 'item3'])
 
     # act
     data_total = sum([data1, data2, data3])

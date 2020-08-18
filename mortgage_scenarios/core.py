@@ -8,53 +8,12 @@ import numpy as np
 from utils import get_monthly_rate
 
 
-def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
-    """
-    The heart of this module. This generator yields payment information for an annuity.
-    It yields payment information for each period of the loan
-    plus 1 extra on after all payments are done
-
-    :param float amount_boy: the amount of the loan
-    :param float rate: the interest rate computed each period
-    :param int npers: the number of periods
-    :param float fv: the future value (after the payments are done)
-    :param float fixed: a fixed payment amount done each period (default is 0)
-
-    This is a wrapper around the np.pmt function with some additional
-    information returns for each period:
-    - interest paid
-    - repayment done
-    - loan amount before and after the payment
-    - total payment done (= payment + interest)
-    """
-    if npers < 1:
-        raise ValueError('npers should be a positive number, "{}" provided'.format(npers))
-    # TODO: pmt is depreciated, use replacement function
-    # noinspection PyTypeChecker
-    payment = -np.pmt(rate, npers, amount_boy, -fv, when='end') + fixed
-    for i in range(npers):
-
-        interest = amount_boy*rate + fixed
-        repayment = payment - interest
-        amount_end = amount_boy - repayment
-        result = PaymentData(amount_boy=amount_boy, interest=interest,
-                             repayment=repayment)
-        yield result
-        amount_boy = amount_end
-
-    interest = amount_boy*rate + fixed
-    # noinspection PyUnboundLocalVariable
-    yield dict(interest=interest, repayment=repayment,
-               amount_end=amount_end, payment=payment,
-               amount_boy=amount_boy)
-
-
 @dataclass
 class PaymentData:
     """
-    dataclass with yearly payment data of a loan
+    dataclass to store payments done and the loan balance before and after payments
 
-    has functionality to add data from other loans
+    This is the output class of payment generators used in mortgage_scenario
     """
 
     interest: float
@@ -108,15 +67,64 @@ class PaymentData:
 
         return self
 
+    def _check_dict_keys(self, d: dict):
+        """
+        Checks whether a dictionary is compatible with the parameters of PaymentData to
+        allow operations such as addition
+        """
+        all_keys_valid = all(k in self._payment_attrs for k in d.keys())
+        required_keys_found = all(k in d.keys() for k in self.__dict__)
+        return all_keys_valid and required_keys_found
+
+
+def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
+    """
+    The heart of this module. This generator yields payment information for an annuity.
+    It yields payment information for each period of the loan
+    plus 1 extra on after all payments are done
+
+    :param float amount_boy: the amount of the loan
+    :param float rate: the interest rate computed each period
+    :param int npers: the number of periods
+    :param float fv: the future value (after the payments are done)
+    :param float fixed: a fixed payment amount done each period (default is 0)
+
+    This is a wrapper around the np.pmt function with some additional
+    information returns for each period:
+    - interest paid
+    - repayment done
+    - loan amount before and after the payment
+    - total payment done (= payment + interest)
+    """
+    if npers < 1:
+        raise ValueError('npers should be a positive number, "{}" provided'.format(npers))
+    # TODO: pmt is depreciated, use replacement function
+    # noinspection PyTypeChecker
+    payment = -np.pmt(rate, npers, amount_boy, -fv, when='end') + fixed
+    for i in range(npers):
+
+        interest = amount_boy*rate + fixed
+        repayment = payment - interest
+        amount_end = amount_boy - repayment
+        result = PaymentData(amount_boy=amount_boy, interest=interest,
+                             repayment=repayment)
+        yield result
+        amount_boy = amount_end
+
+    interest = amount_boy*rate + fixed
+    # noinspection PyUnboundLocalVariable
+    yield dict(interest=interest, repayment=repayment,
+               amount_end=amount_end, payment=payment,
+               amount_boy=amount_boy)
+
 
 class LoanPartIterator:
     """
     Generates payments of a loan and stores remaining amount and period internally
 
-    It is an enhanced version of the generate_payments generator.
-    Iteration returns the values from the generator,
-    but also the period number and remaining periods
-    Also, properties such as current amount are stored in the instance
+    It is an enhanced version of the generate_payments generator,
+    which also tracks the payment period and balance internally and has methods
+    to create new payment iterators with a changed rate or after prepayments
     """
 
     def __init__(self, amount, year_rate, periods, future=0., fixed=0.):
