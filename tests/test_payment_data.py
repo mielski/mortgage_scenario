@@ -6,7 +6,7 @@ import pytest
 
 from core import PaymentData
 
-AM = 'amount_boy'
+AM = 'amount'
 IP = 'interest'
 RP = 'repayment'
 
@@ -33,7 +33,7 @@ payment_fixture_data = {
                 ids=list(payment_fixture_data.keys()))
 def payment_fixture(request):
     """Fixture payment data will all attributes assigned"""
-    payment_data = PaymentData(amount_boy=request.param[AM],
+    payment_data = PaymentData(amount=request.param[AM],
                                interest=request.param[IP],
                                repayment=request.param[RP])
     return payment_data
@@ -43,7 +43,7 @@ def test_add_two_payments(payment_fixture):
     """Tests whether all parameters of two payments are added correctly"""
 
     # arrange
-    payment2 = PaymentData(interest=100, amount_boy=0, repayment=0)
+    payment2 = PaymentData(interest=100, amount=0, repayment=0)
     expected_interest = payment2.interest + payment_fixture.interest
 
     # act
@@ -63,7 +63,7 @@ def test_payment_property(payment_fixture):
 def test_end_amount(payment_fixture):
     """tests whether amount end equals start minus repayment"""
 
-    assert payment_fixture.amount_end == payment_fixture.amount_boy - \
+    assert payment_fixture.amount_end == payment_fixture.amount - \
            payment_fixture.repayment
 
 
@@ -107,7 +107,7 @@ def test__check_dict_keys_missing_keys_rejected(payment_fixture):
 
     # arrange
     dictionary = payment_fixture_data['item1'].copy()
-    del dictionary['amount_boy']  # remove one if the entries
+    del dictionary['amount']  # remove one if the entries
 
     # act
     assert payment_fixture._check_dict_keys(dictionary) is False
@@ -117,8 +117,8 @@ def test_as_dict():
     """simple test for _as_dict"""
 
     # arrange
-    sut = PaymentData(amount_boy=2, interest=1, repayment=2)
-    expected_dict = {'amount_boy': 2, 'interest': 1, 'repayment': 2,
+    sut = PaymentData(amount=2, interest=1, repayment=2)
+    expected_dict = {'amount': 2, 'interest': 1, 'repayment': 2,
                      'payment': 3, 'amount_end': 0}
     # act
     payment_dict = sut.as_dict()
@@ -137,11 +137,11 @@ def test_sum():
     data3 = PaymentData(**payment_fixture_data['item3'])
 
     # count amounts based in input data
-    total_amount_expected = sum(payment_fixture_data[name]['amount_boy']
+    total_amount_expected = sum(payment_fixture_data[name]['amount']
                                 for name in ['item1', 'item2', 'item3'])
 
     # act
     data_total = sum([data1, data2, data3])
 
     # assert
-    assert data_total.amount_boy == total_amount_expected
+    assert data_total.amount == total_amount_expected

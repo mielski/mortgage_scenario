@@ -59,7 +59,7 @@ while True:
 
 df = mortgage.to_dataframe()
 df['events'] = eventlog
-df['ltv'] = df['amount_boy'] / houseprice
+df['ltv'] = df['amount'] / houseprice
 
 print(df)
 

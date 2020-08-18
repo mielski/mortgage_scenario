@@ -10,12 +10,12 @@ from mortgage_scenarios.core import generate_payments, LoanPartIterator
 
 
 def input_dict():
-    yield {'amount_boy': 100,
+    yield {'amount': 100,
               'fv': 20,
               'rate': 0.001,
               'npers': 30,
            }
-    yield {'amount_boy': 200,
+    yield {'amount': 200,
               'fv': 100,
               'rate': 0.001,
               'npers': 30,
@@ -29,14 +29,14 @@ def test_generate_interest_only(payment_parameters):
     repayments
     """
     # arrange
-    payment_parameters['fv'] = payment_parameters['amount_boy']  # set to interest-only loan
+    payment_parameters['fv'] = payment_parameters['amount']  # set to interest-only loan
     gen = generate_payments(**payment_parameters)
 
     # act
     result = next(gen)
 
     # assert
-    assert result.amount_boy == result.amount_end
+    assert result.amount == result.amount_end
 
 
 @pytest.fixture(scope="function")

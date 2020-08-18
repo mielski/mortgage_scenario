@@ -16,11 +16,11 @@ class PaymentData:
     This is the output class of payment generators used in mortgage_scenario
     """
 
-    amount_boy: float
+    amount: float
     interest: float
     repayment: float
 
-    _payment_attrs = {'interest', 'repayment', 'amount_boy', 'payment', 'amount_end'}
+    _payment_attrs = {'interest', 'repayment', 'amount', 'payment', 'amount_end'}
 
     @property
     def payment(self):
@@ -30,7 +30,7 @@ class PaymentData:
     @property
     def amount_end(self):
         """amount after repayment"""
-        return self.amount_boy - self.repayment
+        return self.amount - self.repayment
 
     def as_dict(self):
 
@@ -256,7 +256,7 @@ class MortgageLoanRunner:
     def to_dataframe(self):
         df = pd.DataFrame(self.data).set_index('period')
 
-        df = df[['amount_boy', 'payment', 'interest', 'repayment', 'amount_end']]
+        df = df[['amount', 'payment', 'interest', 'repayment', 'amount_end']]
         return df
 
     def replace_loanpart_by_index(self, loanpart, index=None):
