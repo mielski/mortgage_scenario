@@ -49,7 +49,6 @@ class PaymentData:
         return self.__add__(other)
 
     def __iadd__(self, other):
-        # TODO: improve this to handle periods
         if isinstance(other, PaymentData):
             for attr in self.__dict__:
                 value = getattr(self, attr) + getattr(other, attr)
