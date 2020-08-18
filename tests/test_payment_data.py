@@ -67,7 +67,7 @@ def test_end_amount(payment_fixture):
            payment_fixture.repayment
 
 
-def test__check_dict_keys_+regular(payment_fixture):
+def test__check_dict_keys_regular(payment_fixture):
     """tests whether _check_dict_keys returns positive for
     given dictionary with variation in keys"""
 
@@ -112,6 +112,19 @@ def test__check_dict_keys_missing_keys_rejected(payment_fixture):
     # act
     assert payment_fixture._check_dict_keys(dictionary) is False
 
+
+def test_as_dict():
+    """simple test for _as_dict"""
+
+    # arrange
+    sut = PaymentData(amount_boy=2, interest=1, repayment=2)
+    expected_dict = {'amount_boy': 2, 'interest': 1, 'repayment': 2,
+                     'payment': 3, 'amount_end': 0}
+    # act
+    payment_dict = sut.as_dict()
+
+    # assert
+    assert payment_dict == expected_dict
 
 def test_sum():
     """

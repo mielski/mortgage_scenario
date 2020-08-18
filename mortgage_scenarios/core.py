@@ -16,9 +16,9 @@ class PaymentData:
     This is the output class of payment generators used in mortgage_scenario
     """
 
+    amount_boy: float
     interest: float
     repayment: float
-    amount_boy: float
 
     _payment_attrs = {'interest', 'repayment', 'amount_boy', 'payment', 'amount_end'}
 
@@ -51,9 +51,12 @@ class PaymentData:
     def __iadd__(self, other):
         if isinstance(other, PaymentData):
             for attr in self.__dict__:
+
                 value = getattr(self, attr) + getattr(other, attr)
                 setattr(self, attr, value)
         elif isinstance(other, dict):
+            if not self._check_dict_keys(other):
+                raise KeyError('keys in input dictionary not compatible for addition to PaymentData object')
             for attr in self.__dict__:
                 value = getattr(self, attr) + other[attr]
                 setattr(self, attr, value)
@@ -71,6 +74,7 @@ class PaymentData:
         Checks whether a dictionary is compatible with the parameters of PaymentData to
         allow operations such as addition
         """
+        # TODO: if false, a more explicit error should be raised in self.__iadd__
         all_keys_valid = all(k in self._payment_attrs for k in d.keys())
         required_keys_found = all(k in d.keys() for k in self.__dict__)
         return all_keys_valid and required_keys_found
@@ -112,9 +116,8 @@ def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
 
     interest = amount_boy*rate + fixed
     # noinspection PyUnboundLocalVariable
-    yield dict(interest=interest, repayment=repayment,
-               amount_end=amount_end, payment=payment,
-               amount_boy=amount_boy)
+    yield PaymentData(interest=interest, repayment=repayment,
+                      amount_boy=amount_boy)
 
 
 class LoanPartIterator:
