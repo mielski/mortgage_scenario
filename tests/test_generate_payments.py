@@ -36,7 +36,7 @@ def test_generate_interest_only(payment_parameters):
     result = next(gen)
 
     # assert
-    assert result['amount_boy'] == result['amount_end']
+    assert result.amount_boy == result.amount_end
 
 
 @pytest.fixture(scope="function")
@@ -59,18 +59,6 @@ def test_lpi_next_gives_paymentdata(lpi):
 
     # assert
     assert isinstance(result, PaymentData)
-
-
-def test_lpi_next_periods_assigned_to_data(lpi):
-    """
-    given a LoanPartIterator, checks if correct periods are assigned to the data
-    """
-    # act
-    result = next(lpi)
-
-    # assert
-    assert result.current_period == 0
-    assert result.remaining_period == 2
 
 
 def test_lpi_next_update_internal_periods(lpi):

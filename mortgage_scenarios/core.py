@@ -37,9 +37,8 @@ def generate_payments(amount_boy, rate, npers, fv=0., fixed=0.):
         interest = amount_boy*rate + fixed
         repayment = payment - interest
         amount_end = amount_boy - repayment
-        result = dict(interest=interest, repayment=repayment,
-                      amount_end=amount_end, payment=payment,
-                      amount_boy=amount_boy)
+        result = PaymentData(amount_boy=amount_boy, interest=interest,
+                             repayment=repayment)
         yield result
         amount_boy = amount_end
 
@@ -61,8 +60,6 @@ class PaymentData:
     interest: float
     repayment: float
     amount_boy: float
-    current_period: int = None
-    remaining_period: int = None
 
     _payment_attrs = {'interest', 'repayment', 'amount_boy', 'payment', 'amount_end'}
 
@@ -81,7 +78,6 @@ class PaymentData:
         return {attr: getattr(self, attr) for attr in self._payment_attrs}
 
     def __add__(self, other):
-
         if isinstance(other, int):
             if other == 0:
                 return self
@@ -94,7 +90,7 @@ class PaymentData:
         return self.__add__(other)
 
     def __iadd__(self, other):
-
+        # TODO: improve this to handle periods
         if isinstance(other, PaymentData):
             for attr in self.__dict__:
                 value = getattr(self, attr) + getattr(other, attr)
@@ -163,8 +159,6 @@ class LoanPartIterator:
     def __next__(self):
 
         result: PaymentData = next(self._calculator)
-        result.current_period = self.current_period
-        result.remaining_period = self.remaining_periods
 
         self.current_amount = result.amount_end
         self.current_period += 1
@@ -190,18 +184,16 @@ class MortgageLoanRunner:
 
     def __init__(self):
         self.loanparts = []
-        self.names = []
         self.data = []
         self.loanpart_active = []
         self.period = 0
 
-    def add_loanpart(self, loanpart: LoanPartIterator, name=None):
+    def add_loanpart(self, loanpart: LoanPartIterator):
 
         if not isinstance(loanpart, LoanPartIterator):
             raise TypeError("LoanPartIterator instance expected for argument loanpart")
 
         self.loanparts.append(loanpart)
-        self.names.append(name)
         self.loanpart_active.append(True)
 
     def step(self):
@@ -257,7 +249,7 @@ class MortgageLoanRunner:
         df = df[['amount_boy', 'payment', 'interest', 'repayment', 'amount_end']]
         return df
 
-    def replace_loanpart_by_index(self, loanpart, index=None, name=None):
+    def replace_loanpart_by_index(self, loanpart, index=None):
         """
         replaces one of the existing loanparts with a new one
 
@@ -269,15 +261,6 @@ class MortgageLoanRunner:
         Replacement can be done by index or by name. One of these arguments
         should be provided. Providing None or two will raise an Exception
         """
-
-        if name and index:
-            raise ValueError('replace_loanpart required either name or index' +
-                             ' but both are provided ')
-        if index is None and name is None:
-            raise ValueError('replace_loanpart required either name or index' +
-                             ' but none provided')
-        if index is None:
-            index = self.names.index(name)
 
         self.loanparts[index] = loanpart
 
