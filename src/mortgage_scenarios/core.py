@@ -56,7 +56,8 @@ class PaymentData:
                 setattr(self, attr, value)
         elif isinstance(other, dict):
             if not self._check_dict_keys(other):
-                raise KeyError('keys in input dictionary not compatible for addition to PaymentData object')
+                raise KeyError('keys in input dictionary not compatible'
+                               ' for addition to PaymentData object')
             for attr in self.__dict__:
                 value = getattr(self, attr) + other[attr]
                 setattr(self, attr, value)

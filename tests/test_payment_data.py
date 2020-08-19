@@ -126,6 +126,7 @@ def test_as_dict():
     # assert
     assert payment_dict == expected_dict
 
+
 def test_sum():
     """
     tests summation of three PaymentData instances
