@@ -6,9 +6,9 @@ import mortgage_scenarios
 from re import sub
 from io import StringIO
 import pandas as pd
-import logging
 
-def read_markdown_string(md_string: str)-> pd.DataFrame:
+
+def read_markdown_string(md_string: str) -> pd.DataFrame:
     """
     Converts a markdown string into a pandas dataframe.
 
