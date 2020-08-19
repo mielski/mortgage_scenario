@@ -1,5 +1,6 @@
 """
-use test of running a loan without further events
+use test with LoanRunner of one or two loans, without additional events such as
+prepayments or interest changes during course of mortgage
 """
 import pytest
 import mortgage_scenarios
