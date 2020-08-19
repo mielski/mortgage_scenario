@@ -4,7 +4,7 @@ tests related to the PaymentData class
 
 import pytest
 
-from core import PaymentData
+from mortgage_scenarios.core import PaymentData
 
 AM = 'amount'
 IP = 'interest'
@@ -125,6 +125,7 @@ def test_as_dict():
 
     # assert
     assert payment_dict == expected_dict
+
 
 def test_sum():
     """
