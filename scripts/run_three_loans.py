@@ -44,9 +44,12 @@ while True:
     new_ltv = get_ltv_tranch(mortgage.current_amount, houseprice)
     if new_ltv != ltv_info and new_ltv[0] == 0:
         events.append('ltv < 67.5%')
-        mortgage.replace_loanpart(loan1, loan1.new_loanpart_with_rate(get_monthly_rate(0.019)))
-        mortgage.replace_loanpart(loan2, loan2.new_loanpart_with_rate(get_monthly_rate(.0175)))
-        mortgage.replace_loanpart(loan3, loan3.new_loanpart_with_rate(get_monthly_rate(.0175)))
+        mortgage.replace_loanpart(loan1, loan1.new_loanpart_with_rate(
+            get_monthly_rate(0.019)))
+        mortgage.replace_loanpart(loan2, loan2.new_loanpart_with_rate(
+            get_monthly_rate(.0175)))
+        mortgage.replace_loanpart(loan3, loan3.new_loanpart_with_rate(
+            get_monthly_rate(.0175)))
         ltv_info = new_ltv
 
     # repayment check
@@ -62,4 +65,3 @@ df['events'] = eventlog
 df['ltv'] = df['amount'] / houseprice
 
 print(df)
-
