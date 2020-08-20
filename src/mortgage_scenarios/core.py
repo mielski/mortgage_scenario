@@ -128,14 +128,23 @@ class LoanPartIterator:
     It is an enhanced version of the generate_payments generator,
     which also tracks the payment period and balance internally and has methods
     to create new payment iterators with a changed rate or after prepayments
+
+    :param yearly: if True, then the input periods and rates given in years and
+    are converted to months and month rates for internal calculations.
     """
 
-    def __init__(self, amount, rate, periods, future=0., fixed=0.):
+    def __init__(self, amount, rate, periods, future=0., fixed=0.,
+                 yearly=False):
+
+        if yearly is True:
+            periods *= 12
+            rate = get_monthly_rate(rate)
+
         self.start_amount = amount
-        self.n_periods = periods
-        self.rate = rate
         self.future = future
         self.fixed = fixed
+        self.n_periods = periods
+        self.rate = rate
         self._calculator = None
 
         self.reset()
