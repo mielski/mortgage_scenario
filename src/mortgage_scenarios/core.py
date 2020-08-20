@@ -297,6 +297,34 @@ class MortgageLoanRunner:
         self.loanparts[index] = new
 
 
+def group_by_year(df: pd.DataFrame, start_year_month: str):
+    """
+    groups the payment data in a dataframe from month to yeardata
+
+    :param start_date_str: string indicating the start period
+    , for example: '2020-01', '2021'
+    this is a temporary function. Later an object-oriented approach will be
+    implemented
+    """
+    agg_functions = {'amount': 'first',
+                     'payment': 'sum',
+                     'repayment': 'sum',
+                     'interest': 'sum',
+                     'amount_end': 'last'
+                     }
+
+    agg_set = {key: pd.NamedAgg(column=key, aggfunc=value)
+               for key, value in agg_functions.items() if key in df.columns}
+
+    new_index = pd.period_range(start_year_month, periods=df.shape[0], freq='M')
+
+    df = df.set_index(new_index, drop=True)
+
+    # ensure that aggregation keys for non-existing columns are removed
+
+    df_agg = df.groupby(df.index.year).agg(**agg_set)
+    return df_agg
+
 class MortgageScenarioRunner:
     """
     returns the payments over time of a mortgage, using particular scenario
