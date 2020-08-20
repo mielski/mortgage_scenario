@@ -2,9 +2,9 @@ from bisect import bisect
 
 import pandas as pd
 
-from mortgage_scenarios import MortgageLoanRunner, LoanPartIterator
+from mortgage_scenarios import MortgageLoanRunner, LoanPartIterator, get_monthly_rate
 
-houseprice = 62000
+houseprice = 620000
 
 def get_ltv_tranch(amount, houseprice):
     ltv_boundaries = (0.675, 0.9, 1.0)
@@ -18,9 +18,9 @@ PERIODS = 30
 pd.options.display.precision = 2
 pd.options.display.float_format = '{:,.2f}'.format
 
-loan1 = LoanPartIterator(92500, 0.0215, PERIODS, future=92500, fixed=1.7)
-loan2 = LoanPartIterator(150000, 0.0195, PERIODS, fixed=1.7)
-loan3 = LoanPartIterator(144000, 0.0195, PERIODS, fixed=1.7)
+loan1 = LoanPartIterator(92500, 0.0215, PERIODS, future=92500, fixed=1.7, yearly=True)
+loan2 = LoanPartIterator(198183, 0.0195, PERIODS, fixed=1.7, yearly=True)
+loan3 = LoanPartIterator(144000, 0.0195, PERIODS, fixed=1.7, yearly=True)
 loans = [loan1, loan2, loan3]
 
 # ----
@@ -44,9 +44,9 @@ while True:
     new_ltv = get_ltv_tranch(mortgage.current_amount, houseprice)
     if new_ltv != ltv_info and new_ltv[0] == 0:
         events.append('ltv < 67.5%')
-        mortgage.replace_loanpart(loan1, loan1.new_loanpart_with_rate(0.019))
-        mortgage.replace_loanpart(loan2, loan2.new_loanpart_with_rate(0.0175))
-        mortgage.replace_loanpart(loan3, loan3.new_loanpart_with_rate(0.0175))
+        mortgage.replace_loanpart(loan1, loan1.new_loanpart_with_rate(get_monthly_rate(0.019)))
+        mortgage.replace_loanpart(loan2, loan2.new_loanpart_with_rate(get_monthly_rate(.0175)))
+        mortgage.replace_loanpart(loan3, loan3.new_loanpart_with_rate(get_monthly_rate(.0175)))
         ltv_info = new_ltv
 
     # repayment check
