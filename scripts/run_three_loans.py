@@ -1,8 +1,14 @@
 from bisect import bisect
 
 import pandas as pd
+import numpy as np
 
 from mortgage_scenarios import MortgageLoanRunner, LoanPartIterator, get_monthly_rate
+from mortgage_scenarios.core import group_by_year
+####
+# Settings
+####
+USE_LTV = False
 
 houseprice = 631000
 
@@ -18,9 +24,12 @@ PERIODS = 30
 pd.options.display.precision = 2
 pd.options.display.float_format = '{:,.2f}'.format
 
-loan1 = LoanPartIterator(92500, 0.0215, PERIODS, future=92500, fixed=1.7, yearly=True)
-loan2 = LoanPartIterator(198183, 0.0195, PERIODS, fixed=1.7, yearly=True)
-loan3 = LoanPartIterator(144000, 0.0195, PERIODS, fixed=1.7, yearly=True)
+rates = np.array([0.0215, 0.0195, 0.0195])
+rates += 0.00017
+fixed = 0
+loan1 = LoanPartIterator(92500, rates[0], PERIODS, future=92500, fixed=fixed, yearly=True)
+loan2 = LoanPartIterator(198183, rates[1], PERIODS, fixed=fixed, yearly=True)
+loan3 = LoanPartIterator(144000, rates[2], PERIODS, fixed=fixed, yearly=True)
 loans = [loan1, loan2, loan3]
 
 # ----
@@ -29,6 +38,7 @@ mortgage = MortgageLoanRunner()
 for loan in loans:
     mortgage.add_loanpart(loan)
 
+print('total loan %.2f euro' % mortgage.current_amount)
 # TODO: set rates based on current ltv
 ltv_info = get_ltv_tranch(mortgage.current_amount, houseprice)
 
@@ -42,7 +52,7 @@ while True:
 
     # ltv check
     new_ltv = get_ltv_tranch(mortgage.current_amount, houseprice)
-    if new_ltv != ltv_info and new_ltv[0] == 0:
+    if USE_LTV and new_ltv != ltv_info and new_ltv[0] == 0:
         events.append('ltv < 67.5%')
         mortgage.replace_loanpart(loan1, loan1.new_loanpart_with_rate(
             get_monthly_rate(0.019)))
@@ -64,4 +74,10 @@ df = mortgage.to_dataframe()
 df['events'] = eventlog
 df['ltv'] = df['amount'] / houseprice
 
-print(df)
+# print(df)
+df2 = mortgage.to_dataframe()
+
+df_agg = group_by_year(df2, '2020-9')
+print(df_agg)
+
+# print(df2.loc[:3])
