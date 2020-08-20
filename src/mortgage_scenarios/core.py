@@ -306,10 +306,10 @@ def group_by_year(df: pd.DataFrame, start_year_month: str):
     this is a temporary function. Later an object-oriented approach will be
     implemented
     """
-    agg_functions = {'amount': 'first',
-                     'payment': 'sum',
-                     'repayment': 'sum',
-                     'interest': 'sum',
+    agg_functions = {'amount': 'last',
+                     'payment': 'mean',
+                     'repayment': 'mean',
+                     'interest': 'mean',
                      'amount_end': 'last'
                      }
 

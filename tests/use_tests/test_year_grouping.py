@@ -25,7 +25,7 @@ def test_group_by_year():
 
     # set up the output data
     expected_data = {'amount': [2400, 2000, 800],
-                     'repayment': [400, 1200, 800],
+                     'repayment': [100, 100, 100],
                      'amount_end': [2000, 800, 0]}
     expected_df = pd.DataFrame(expected_data, columns=columns, index=[2020, 2021, 2022])
 
