@@ -46,7 +46,7 @@ def test_vanilla_annuity():
 
     amount = 100
     periods = 3
-    rate = 0.126825
+    rate = 0.01
     loan = mortgage_scenarios.LoanPartIterator(amount, rate, periods)
 
     expected_df = read_markdown_string(expected_md)
@@ -79,7 +79,7 @@ def test_vanilla_interest_only():
 
     amount = 100
     periods = 3
-    rate = 0.126825
+    rate = 0.01
     fv = 100
     loan = mortgage_scenarios.LoanPartIterator(amount, rate, periods, fv)
 
@@ -113,7 +113,7 @@ def test_annuity_plus_fixed_rate():
 
     amount = 100
     periods = 3
-    rate = 0.126825
+    rate = 0.01
     fixed = 2
     loan = mortgage_scenarios.LoanPartIterator(amount, rate, periods, fixed=fixed)
 

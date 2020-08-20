@@ -130,10 +130,10 @@ class LoanPartIterator:
     to create new payment iterators with a changed rate or after prepayments
     """
 
-    def __init__(self, amount, year_rate, periods, future=0., fixed=0.):
+    def __init__(self, amount, rate, periods, future=0., fixed=0.):
         self.start_amount = amount
         self.n_periods = periods
-        self.rate = get_monthly_rate(year_rate)
+        self.rate = rate
         self.future = future
         self.fixed = fixed
         self._calculator = None
