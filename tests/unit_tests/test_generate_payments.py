@@ -45,7 +45,7 @@ def lpi():
     """
     LoanPartIterator object with a MagicMock for the generator
     """
-    lpi = LoanPartIterator(amount=1000., year_rate=0.01, periods=2)
+    lpi = LoanPartIterator(amount=1000., rate=0.01, periods=2)
     lpi._calculator = MagicMock(spec=generate_payments(0, 0, 1))
     lpi._calculator.__next__.return_value = PaymentData(0, 0, 0)
     return lpi
