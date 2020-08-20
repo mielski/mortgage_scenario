@@ -4,7 +4,7 @@ import pandas as pd
 
 from mortgage_scenarios import MortgageLoanRunner, LoanPartIterator, get_monthly_rate
 
-houseprice = 620000
+houseprice = 631000
 
 def get_ltv_tranch(amount, houseprice):
     ltv_boundaries = (0.675, 0.9, 1.0)
