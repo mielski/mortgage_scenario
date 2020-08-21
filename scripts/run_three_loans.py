@@ -9,8 +9,11 @@ from mortgage_scenarios.core import group_by_year
 # Settings
 ####
 USE_LTV = False
-
+start_period = '2020-10'
 houseprice = 631000
+
+#####
+
 
 def get_ltv_tranch(amount, houseprice):
     ltv_boundaries = (0.675, 0.9, 1.0)
@@ -22,10 +25,10 @@ def get_ltv_tranch(amount, houseprice):
 PERIODS = 30
 
 pd.options.display.precision = 2
-pd.options.display.float_format = '{:,.2f}'.format
+pd.options.display.float_format = '{:,.0f}'.format
 
 rates = np.array([0.0215, 0.0195, 0.0195])
-rates += 0.00017
+rates += 0.000175
 fixed = 0
 loan1 = LoanPartIterator(92500, rates[0], PERIODS, future=92500, fixed=fixed, yearly=True)
 loan2 = LoanPartIterator(198183, rates[1], PERIODS, fixed=fixed, yearly=True)
@@ -77,7 +80,8 @@ df['ltv'] = df['amount'] / houseprice
 # print(df)
 df2 = mortgage.to_dataframe()
 
-df_agg = group_by_year(df2, '2020-9')
-print(df_agg)
+
+df_agg = group_by_year(df2, start_period)
+print(df_agg[['amount_end', 'interest', 'payment', 'repayment']])
 
 # print(df2.loc[:3])
