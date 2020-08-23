@@ -301,17 +301,26 @@ def group_by_year(df: pd.DataFrame, start_year_month: str):
     """
     groups the payment data in a dataframe from month to yeardata
 
-    :param start_date_str: string indicating the start period
+    :param df: the dataframe that is converted from month to year
+    :param start_year_month: string indicating the start period
     , for example: '2020-01', '2021'
+
     this is a temporary function. Later an object-oriented approach will be
     implemented
     """
+
     agg_functions = {'amount': 'first',
                      'payment': 'mean',
                      'repayment': 'mean',
                      'interest': 'mean',
                      'amount_end': 'last'
                      }
+    cols = set(df.columns)
+
+    cols_out_range = cols.difference(agg_functions)
+    if cols_out_range:
+        raise KeyError('input dataframe has columns not in'
+                       ' agg_function: {}'.format(cols_out_range))
 
     agg_set = {key: pd.NamedAgg(column=key, aggfunc=value)
                for key, value in agg_functions.items() if key in df.columns}
@@ -324,6 +333,7 @@ def group_by_year(df: pd.DataFrame, start_year_month: str):
 
     df_agg = df.groupby(df.index.year).agg(**agg_set)
     return df_agg
+
 
 class MortgageScenarioRunner:
     """
