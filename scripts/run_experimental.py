@@ -35,8 +35,6 @@ rates_addon = 0.000175
 
 USE_LTV = True
 houseprice = 631000
-
-
 #####
 
 
@@ -47,7 +45,7 @@ def get_ltv_tranch(amount, houseprice):
     ltv_index = bisect(ltv_boundaries, ltv)
     return ltv_index, ltv_tranch_names[ltv_index]
 
-PERIODS = 30
+PERIODS = 30  # noqa
 
 pd.options.display.precision = 2
 pd.options.display.float_format = '{:,.0f}'.format
@@ -92,19 +90,17 @@ while True:
         ltv_info = new_ltv
 
     if mortgage.period == 20*12-1:
-        # simulare sudden interest jump
+        # simulates interest jump
         new_rate = get_monthly_rate(0.05)
-        for l in mortgage.loanparts[:]:
-            mortgage.replace_loanpart(l, l.new_loanpart_with_rate(new_rate))
+        for loan in mortgage.loanparts[:]:
+            mortgage.replace_loanpart(loan, loan.new_loanpart_with_rate(new_rate))
 
     try:
         mortgage.step()
     except StopIteration:
         break
 
-
     # repayment check
-
     if mortgage.period in [10, 20]:
         print('do repayment')
         events.append('repayment')
