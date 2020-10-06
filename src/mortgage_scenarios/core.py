@@ -309,29 +309,26 @@ def group_by_year(df: pd.DataFrame, start_year_month: str):
     implemented
     """
 
-    agg_functions = {'amount': 'first',
-                     'payment': 'mean',
-                     'repayment': 'mean',
-                     'interest': 'mean',
-                     'amount_end': 'last'
-                     }
-    cols = set(df.columns)
-
-    cols_out_range = cols.difference(agg_functions)
+    aggr_function_set = {'amount': 'first',
+                         'payment': 'mean',
+                         'repayment': 'mean',
+                         'interest': 'mean',
+                         'amount_end': 'last'
+                                }
+    # create subset for existing columns only
+    cols_out_range = set(df.columns).difference(aggr_function_set)
     if cols_out_range:
-        raise KeyError('input dataframe has columns not in'
-                       ' agg_function: {}'.format(cols_out_range))
-
-    agg_set = {key: pd.NamedAgg(column=key, aggfunc=value)
-               for key, value in agg_functions.items() if key in df.columns}
+        raise KeyError(f'no aggregation function for one or more'
+                       f'columns in the input data: {cols_out_range}')
 
     new_index = pd.period_range(start_year_month, periods=df.shape[0], freq='M')
-
     df = df.set_index(new_index, drop=True)
 
-    # ensure that aggregation keys for non-existing columns are removed
-
-    df_agg = df.groupby(df.index.year).agg(**agg_set)
+    pd_agg_functions = {key: pd.NamedAgg(column=key, aggfunc=value)
+                        for key, value in aggr_function_set.items()
+                        if key in df.columns
+                        }
+    df_agg = df.groupby(df.index.year).agg(**pd_agg_functions)
     return df_agg
 
 

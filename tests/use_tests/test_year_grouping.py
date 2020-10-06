@@ -17,6 +17,7 @@ def df_month_fixture():
     df_months.amount_end = df_months.amount - 100  # [2300, 2200, 2100, ..., 100,   0]
     return df_months
 
+
 def test_group_by_year(df_month_fixture):
     """
     validate result of group_by_year based on

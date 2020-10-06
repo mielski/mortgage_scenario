@@ -7,8 +7,8 @@ from mortgage_scenarios import MortgageLoanRunner, LoanPartIterator, get_monthly
 from mortgage_scenarios.core import group_by_year
 
 """
-This script contains experimental features (events) to be implemented in a 
-proper design
+This script contains prototypes for experimental features 
+They are to be implemented in a proper way in the main code
 
 experimental features
 ---------------------
